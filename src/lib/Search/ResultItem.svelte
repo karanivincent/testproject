@@ -1,4 +1,6 @@
 <script>
+// @ts-nocheck
+
     import { focusedRecord } from "../../store/store"
     export let name = '';
     export let id = '';

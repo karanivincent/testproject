@@ -1,14 +1,15 @@
 
 <script>
-import SearchPreview from "./SearchPreview.svelte";
-import { createEventDispatcher } from 'svelte';
-import { query } from "../../store/store"
-import { prevent_default } from "svelte/internal";
+  import SearchPreview from "./SearchPreview.svelte";
+  import { createEventDispatcher } from 'svelte';
+  import { query } from "../../store/store"
+  import users from '../../mock/users.json';
 
-
+  export let allUsers = users
   const dispatch = createEventDispatcher();
-  let showPreview = false;
 
+  let showPreview = false;
+  let filteredUsers = allUsers
 
 
 
@@ -20,8 +21,16 @@ import { prevent_default } from "svelte/internal";
   }
 
   function filterResults () {
-    if($query.length >3 ){
+    filteredUsers =  allUsers.filter((user) => {
+          return user.first_name.toLowerCase().includes($query.toLowerCase())
+          || user.last_name.toLowerCase().includes($query.toLowerCase())
+          || user.id.toLowerCase().includes($query.toLowerCase())
+          || user.email_address.toLowerCase().includes($query.toLowerCase())
+        });
+    if($query.length >2 ){
       displayPreview()
+      setTimeout(getResults, 2000)
+
       return
     }
     closePreview()
@@ -32,9 +41,10 @@ import { prevent_default } from "svelte/internal";
 
   }
 
-  const people = [
-    { id: 1, name: 'Leslie Alexander' },
-  ]
+
+
+
+
 
 
 </script>
@@ -46,19 +56,19 @@ import { prevent_default } from "svelte/internal";
 	>
     <div class=" w-full">
 
-        <label for="search-bar" hidden>Search bar</label>
+        <label for="search-bar" hidden >Search</label>
       <input
         bind:value={$query}
         on:input={filterResults}
-      name="search-bar" list="search-results"  type="search" aria-label="Search record" placeholder="Search name, ID or email" class=" w-full  py-2  focus:outline-none" />
+       id="search-bar"  type="search" aria-label="Search record" placeholder="Search name, ID or email" class=" w-full  py-2  focus:outline-none" />
     </div>
-    <button class=" p-2 text-gray-400 hover:text-gray-600 transition-colors">
+    <button disabled={$query.length <3} aria-label="search-button"  class=" p-2 text-gray-400 hover:text-gray-600 transition-colors">
         <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"></path></svg>
     </button>
 	</form>
   {#if showPreview}
-     <div class=" max-w-sm absolute z-10 h-52 w-full">
-    <SearchPreview on:close={closePreview}/>
+     <div data-testid="search-preview" class=" max-w-sm absolute z-50 h-52 w-full">
+    <SearchPreview filteredPeople={filteredUsers} on:close={closePreview}/>
   </div>
   {/if}
 
